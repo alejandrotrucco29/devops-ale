@@ -1,0 +1,104 @@
+{
+    "family": "official-fans-api",
+    "containerDefinitions": [
+        {
+			"essential": true,
+			"image": "906394416424.dkr.ecr.us-east-1.amazonaws.com/aws-for-fluent-bit:stable",
+			"name": "log_router",
+			"firelensConfiguration": {
+				"type": "fluentbit"
+			},
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+					"awslogs-group": "officialfans-api",
+					"awslogs-region": "us-east-1",
+					"awslogs-create-group": "true",
+					"awslogs-stream-prefix": "firelens"
+				}
+			}
+		},
+        {
+            "name": "nginx-officialfans",
+            "image": "821076894817.dkr.ecr.us-east-1.amazonaws.com/prod-ngnix:latest",
+            "cpu": 204,
+            "memory": 512,
+            "memoryReservation": 500,
+            "portMappings": [
+                {
+                    "name": "nginx-officialfans-80-tcp",
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+				"logDriver":"awsfirelens",
+				"options": {
+					"Name": "cloudwatch",
+					"region": "us-east-1",
+					"log_group_name": "/aws/ecs/containerinsights/$(ecs_cluster)/ngnix-prod",
+					"auto_create_group": "true",
+					"log_stream_name": "$(ecs_task_id)"
+                }
+            }
+        },
+        {
+            "name": "official-fans",
+            "image": "821076894817.dkr.ecr.us-east-1.amazonaws.com/prod-api:latest",
+            "cpu": 819,
+            "memory": 1536,
+            "memoryReservation": 1500,
+            "portMappings": [
+                {
+                    "name": "official-fans-9000-tcp",
+                    "containerPort": 9000,
+                    "hostPort": 9000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": false,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+				"logDriver":"awsfirelens",
+				"options": {
+					"Name": "cloudwatch",
+					"region": "us-east-1",
+					"log_group_name": "/aws/ecs/containerinsights/$(ecs_cluster)/officialfans-prod",
+					"auto_create_group": "true",
+					"log_stream_prefix": "$(ecs_task_id)",
+                    "log_format": "json/emf"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:9000/ || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3
+            }
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::821076894817:role/preprod-ecs-task-execution-role",
+    "executionRoleArn": "arn:aws:iam::821076894817:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "tags": [
+        {
+            "key": "ecs:taskDefinition:createdFrom",
+            "value": "ecs-console-v2"
+        }
+    ]
+}
