@@ -29,9 +29,7 @@ jobs:
 
     - name: Run Unit Tests
       run: |
-        py manage.py test
-      env:
-        pythonLocation: /usr/bin/python3
+        python manage.py test
 
     - name: Code Coverage
       run: |
