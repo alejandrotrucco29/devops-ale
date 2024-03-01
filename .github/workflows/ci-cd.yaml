@@ -20,13 +20,7 @@ jobs:
 
     - name: Install dependencies
       run: pip install -r requirements.txt
-
-    - name: Build and push Docker image
-      run: |
-        docker build -t ${{ secrets.DOCKER_REGISTRY_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ github.sha }} .
-        docker login -u ${{ secrets.DOCKER_REGISTRY_USERNAME }} -p ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-        docker push ${{ secrets.DOCKER_REGISTRY_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:${{ github.sha }}
-
+      
   test:
     runs-on: ubuntu-latest
 
