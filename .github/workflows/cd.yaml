@@ -27,14 +27,13 @@ jobs:
         docker build -t $DOCKER_IMAGE_FULLNAME .
         docker push $DOCKER_IMAGE_FULLNAME
 
+    - name: Configure Kubectl for Minikube
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      run: |
+        echo "$KUBECONFIG" > kubeconfig.yaml
+        export KUBECONFIG=$(pwd)/kubeconfig.yaml
 
-      - name: Configure Kubectl for Minikube
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-        run: |
-          echo "$KUBECONFIG" > kubeconfig.yaml
-          export KUBECONFIG=$(pwd)/kubeconfig.yaml
-
-      - name: Update Kubernetes deployment
-        run: |
-          kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} -n demo-deployment
+    - name: Update Kubernetes deployment
+      run: |
+        kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} -n demo-deployment
