@@ -16,15 +16,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Log into Docker Hub with token
-      run: docker login -u $DOCKERHUB_USERNAME -p "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}"
+    - name: Push Docker image
+      run: |
+        docker build -t $DOCKER_IMAGE_NAME .
+        docker tag $DOCKER_IMAGE_NAME $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
+        docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
 
-
-    - name: Build Docker image
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} .
-
-    - name: Push Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }}
 
     - name: Configure Kubectl for Minikube
       run: |
