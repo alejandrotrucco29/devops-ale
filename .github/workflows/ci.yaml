@@ -43,3 +43,11 @@ jobs:
     - name: Static Code Analysis 
       run: |
         flake8 demo
+    
+    - name: Trigger CD if tests pass
+      if: ${{ steps.unit-tests.outcome == 'success' }}
+      uses: ad-m/github-push-action@master
+      with:
+        branch: main
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        force: true
