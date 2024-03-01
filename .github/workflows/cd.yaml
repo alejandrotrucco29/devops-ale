@@ -16,21 +16,28 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Install kubectl
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apt-transport-https ca-certificates curl
+        sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo apt-get update
+        sudo apt-get install -y kubectl
+
     - name: Login to Docker Hub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-    - name: Push Docker image with runner tag
+    - name: Build and Push Docker image
       run: |
         DOCKER_IMAGE_NAME="trucco10/demo-devops-python"
-        DOCKER_IMAGE_FULLNAME="$DOCKER_IMAGE_NAME:${{ github.run_number }}"
+        DOCKER_IMAGE_TAG="${{ github.run_number }}"
+        DOCKER_IMAGE_FULLNAME="$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
         docker build -t $DOCKER_IMAGE_FULLNAME .
         docker push $DOCKER_IMAGE_FULLNAME
 
 
-    - name: Configure Kubectl for Minikube
-      run: |
-        minikube -p minikube kubectl config view --raw > kubeconfig.yaml
-        export KUBECONFIG=$(pwd)/kubeconfig.yaml
+
 
     - name: Update Kubernetes deployment
       run: |
