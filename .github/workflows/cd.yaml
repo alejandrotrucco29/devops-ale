@@ -27,3 +27,10 @@ jobs:
     - name: Push Docker image to Docker Hub
       run: docker push trucco10/demo-devops-python:${{ github.run_number }}
 
+    - name: Update Kubernetes deployment
+       uses: azure/k8s-set-context@v1
+       with:
+         kubeconfig: ${{ secrets.KUBE_CONFIG }}
+       run: |
+         cd kubernetes
+         kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=trucco10/demo-devops-python:${{ github.run_number }} -n demo-deployment
