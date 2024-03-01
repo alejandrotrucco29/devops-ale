@@ -18,9 +18,11 @@ jobs:
 
     - name: Push Docker image with runner tag
       run: |
+        DOCKER_IMAGE_NAME="trucco10/demo-devops-python"
         DOCKER_IMAGE_FULLNAME="$DOCKER_IMAGE_NAME:${{ github.run_number }}"
         docker build -t $DOCKER_IMAGE_FULLNAME .
         docker push $DOCKER_IMAGE_FULLNAME
+
 
     - name: Configure Kubectl for Minikube
       run: |
