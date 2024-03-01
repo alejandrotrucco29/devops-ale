@@ -1,6 +1,9 @@
-name: CD
+name: CI/CD
 
 on:
+  push:
+    branches:
+      - main
   workflow_run:
     workflows: ["CI"]
     types:
@@ -8,34 +11,25 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-
-    env:
-      KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-
+    runs-on: self-hosted
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
-    - name: Configure Docker CLI
-      run: |
-        echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
-        gcloud auth configure-docker
 
-    - name: Export Kubeconfig
-      run: echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig.yaml
-
-    - name: Set up Kubectl
-      run: |
-        export KUBECONFIG=$(pwd)/kubeconfig.yaml
+    - name: Log into Docker Hub with token
+      run: docker login -u $DOCKERHUB_USERNAME -p ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t trucco10/demo-devops-python:${{ github.run_number }} .
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} .
 
-    - name: Push Docker image to Container Registry
-      run: docker push trucco10/demo-devops-python:${{ github.run_number }}
+    - name: Push Docker image to Docker Hub
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }}
+
+    - name: Configure Kubectl for Minikube
+      run: |
+        minikube -p minikube kubectl config view --raw > kubeconfig.yaml
+        export KUBECONFIG=$(pwd)/kubeconfig.yaml
 
     - name: Update Kubernetes deployment
       run: |
-        kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=trucco10/demo-devops-python:${{ github.run_number }} -n demo-deployment
+        kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} -n demo-deployment
