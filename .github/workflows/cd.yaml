@@ -43,4 +43,4 @@ jobs:
 
     - name: Update Kubernetes deployment
       run: |
-        kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} -n demo-deployment
+        kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} -n app-test
