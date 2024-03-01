@@ -16,10 +16,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Print Docker image name
+      run: |
+      echo "Docker image name: $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME"
+  
     - name: Push Docker image
       run: |
-        docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME .
-        docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
+      docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME .
+      docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
 
 
     - name: Configure Kubectl for Minikube
