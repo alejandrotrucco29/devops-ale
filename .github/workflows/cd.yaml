@@ -18,12 +18,15 @@ jobs:
 
     - name: Print Docker image name
       run: |
-        echo "Docker image name: $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME"
-  
+        DOCKER_IMAGE_FULLNAME="$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME"
+        echo "Docker image name: $DOCKER_IMAGE_FULLNAME"
+    
     - name: Push Docker image
       run: |
-        docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME .
-        docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
+        DOCKER_IMAGE_FULLNAME="$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME"
+        docker build -t $DOCKER_IMAGE_FULLNAME .
+        docker push $DOCKER_IMAGE_FULLNAME
+
 
 
     - name: Configure Kubectl for Minikube
