@@ -28,7 +28,7 @@ jobs:
       run: docker push trucco10/demo-devops-python:${{ github.run_number }}
 
     - name: Update Kubernetes deployment
-       uses: azure/k8s-set-context@v1
+      uses: azure/k8s-set-context@v1
        with:
          kubeconfig: ${{ secrets.KUBE_CONFIG }}
        run: |
