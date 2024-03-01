@@ -41,5 +41,4 @@ jobs:
 
       - name: Update Kubernetes deployment
         run: |
-          sed -i "s|image:.*|image: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}|" kubernetes/deployment.yaml
           kubectl set image deployment/demo-devops-python-deployment demo-devops-python-container=${{ secrets.DOCKERHUB_USERNAME }}/demo-devops-python:${{ github.run_number }} -n app-test
